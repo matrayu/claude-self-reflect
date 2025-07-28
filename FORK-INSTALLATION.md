@@ -12,7 +12,14 @@ cd claude-self-reflect
 
 ### 2. Setup MCP Server
 
-#### Option A: For Current Project Only
+#### Recommended: Global Installation (All Projects)
+```bash
+# Run from anywhere - uses --scope user flag
+/path/to/claude-self-reflect/setup-local-mcp.sh
+```
+This installs with `--scope user` making it available in ALL your projects.
+
+#### Alternative: Single Project Only
 ```bash
 # Navigate to your project directory first
 cd /path/to/your/project
@@ -20,16 +27,16 @@ cd /path/to/your/project
 /path/to/claude-self-reflect/setup-for-project.sh
 ```
 
-#### Option B: For All Projects (Global-like behavior)
-```bash
-# Run from your home directory
-cd ~
-/path/to/claude-self-reflect/setup-local-mcp.sh
-```
-
 ### 3. Restart Claude Code
 
-**Note**: Claude MCP configurations are tied to the directory where you run `claude mcp add`. Running from your home directory makes it available more broadly.
+### Understanding MCP Scopes
+
+Claude MCP has three scope options:
+- **`user`** - Available in all your projects (recommended for personal tools)
+- **`local`** - Only in the current project directory (default if no scope specified)
+- **`project`** - Shared via .mcp.json file in the project
+
+The confusion earlier was that without `--scope user`, the MCP was being installed as `local` scope tied to wherever you ran the command from.
 
 ## Manual Installation
 

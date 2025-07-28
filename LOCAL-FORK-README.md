@@ -18,9 +18,10 @@ This fork contains critical fixes not yet in the upstream repository:
 
 ### Option 1: Quick Setup (Recommended)
 ```bash
-# From any Claude project directory:
+# Run from anywhere - installs globally with --scope user
 /Users/matrayu/Projects/claude-self-reflect/setup-local-mcp.sh
 ```
+**Important**: This now uses `--scope user` to make it available in ALL projects. See [MCP-SCOPE-EXPLAINED.md](./MCP-SCOPE-EXPLAINED.md) for details on why this matters.
 
 ### Option 2: Manual Setup
 ```bash
