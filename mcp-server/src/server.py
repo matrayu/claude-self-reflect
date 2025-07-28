@@ -25,10 +25,13 @@ try:
     NATIVE_DECAY_AVAILABLE = True
 except ImportError:
     # Fall back to older API
-    from qdrant_client.models import (
-        FormulaQuery, DecayParamsExpression, SumExpression,
-        DatetimeExpression, DatetimeKeyExpression
-    )
+    try:
+        from qdrant_client.models import (
+            FormulaQuery, DecayParamsExpression, SumExpression,
+            DatetimeExpression, DatetimeKeyExpression
+        )
+    except ImportError:
+        pass
     NATIVE_DECAY_AVAILABLE = False
 import voyageai
 from dotenv import load_dotenv
@@ -235,6 +238,24 @@ async def reflect_on_past(
                         score_threshold=min_score,
                         with_payload=True
                     )
+                    
+                    # The query_points returns the results directly, not wrapped in an object
+                    for point in results:
+                        # Clean timestamp for proper parsing
+                        raw_timestamp = point.payload.get('timestamp', datetime.now().isoformat())
+                        clean_timestamp = raw_timestamp.replace('Z', '+00:00') if raw_timestamp.endswith('Z') else raw_timestamp
+                        
+                        all_results.append(SearchResult(
+                            id=str(point.id),
+                            score=point.score,  # Score already includes decay
+                            timestamp=clean_timestamp,
+                            role=point.payload.get('start_role', point.payload.get('role', 'unknown')),
+                            excerpt=(point.payload.get('text', '')[:500] + '...'),
+                            project_name=point.payload.get('project', collection_name.replace('conv_', '').replace('_voyage', '').replace('_local', '')),
+                            conversation_id=point.payload.get('conversation_id'),
+                            collection_name=collection_name
+                        ))
+                        
                 elif should_use_decay and USE_NATIVE_DECAY and not NATIVE_DECAY_AVAILABLE:
                     # Use native Qdrant decay with older API
                     await ctx.debug(f"Using NATIVE Qdrant decay (legacy API) for {collection_name}")
@@ -280,7 +301,7 @@ async def reflect_on_past(
                     )
                     
                     # Process results from native decay search
-                    for point in results.points:
+                    for point in results:
                         # Clean timestamp for proper parsing
                         raw_timestamp = point.payload.get('timestamp', datetime.now().isoformat())
                         clean_timestamp = raw_timestamp.replace('Z', '+00:00') if raw_timestamp.endswith('Z') else raw_timestamp
@@ -412,8 +433,10 @@ async def reflect_on_past(
         return result_text
         
     except Exception as e:
-        await ctx.error(f"Search failed: {str(e)}")
-        return f"Failed to search conversations: {str(e)}"
+        import traceback
+        error_details = traceback.format_exc()
+        await ctx.error(f"Search failed: {str(e)}\nTraceback:\n{error_details}")
+        return f"Failed to search conversations: {str(e)}\n\nDebug info:\n{error_details}"
 
 @mcp.tool()
 async def store_reflection(
