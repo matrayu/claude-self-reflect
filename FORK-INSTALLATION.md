@@ -10,12 +10,26 @@ git clone https://github.com/matrayu/claude-self-reflect.git
 cd claude-self-reflect
 ```
 
-### 2. Run the setup script
+### 2. Setup MCP Server
+
+#### Option A: For Current Project Only
 ```bash
-./setup-local-mcp.sh
+# Navigate to your project directory first
+cd /path/to/your/project
+# Run the project setup script
+/path/to/claude-self-reflect/setup-for-project.sh
+```
+
+#### Option B: For All Projects (Global-like behavior)
+```bash
+# Run from your home directory
+cd ~
+/path/to/claude-self-reflect/setup-local-mcp.sh
 ```
 
 ### 3. Restart Claude Code
+
+**Note**: Claude MCP configurations are tied to the directory where you run `claude mcp add`. Running from your home directory makes it available more broadly.
 
 ## Manual Installation
 
