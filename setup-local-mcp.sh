@@ -30,8 +30,21 @@ chmod +x "$MCP_SERVER_DIR/run-mcp.sh"
 
 # 3. Add to Claude MCP
 echo "🔧 Adding MCP server to Claude..."
+
+# Save current directory
+CURRENT_DIR=$(pwd)
+
+# Change to a neutral directory to add globally
+cd "$HOME"
+
+# Remove any existing configuration
 claude mcp remove claude-self-reflect 2>/dev/null || true
-claude mcp add claude-self-reflect "$MCP_SERVER_DIR/run-mcp.sh" -e QDRANT_URL="http://localhost:6333"
+
+# Add the MCP server with user scope (available in all projects)
+claude mcp add claude-self-reflect "$MCP_SERVER_DIR/run-mcp.sh" -e QDRANT_URL="http://localhost:6333" --scope user
+
+# Return to original directory
+cd "$CURRENT_DIR"
 
 echo "✅ MCP server added to Claude"
 
